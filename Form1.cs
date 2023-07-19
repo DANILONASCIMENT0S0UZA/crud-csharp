@@ -13,7 +13,8 @@ namespace WFGravarDadosMySQL
 {
     public partial class Form1 : Form
     {
-        MySqlConnection Conexao;
+       private MySqlConnection Conexao;
+       private string data_source = "datasource=localhost;username=root;password=;database=db_agenda";
         public Form1()
         {
             InitializeComponent();
@@ -23,8 +24,8 @@ namespace WFGravarDadosMySQL
         {
             try
             {
-                string data_source = "datasource=localhost;username=root;password=;database=aula";
-                Conexao = new MySqlConnection(data_source);
+                
+               Conexao = new MySqlConnection(data_source);
 
                 string sql = "INSERT INTO contato (nome,email,telefone)" + "VALUES " + "(' "+txtNome.Text+" ' , ' "+txtEmail.Text+" ' , ' "+txtTelefone.Text +" ')";
 
@@ -33,6 +34,56 @@ namespace WFGravarDadosMySQL
                 comando.ExecuteReader();
                 MessageBox.Show("Cadastro inserido com sucesso!");
             }catch(Exception ex)
+            {
+                MessageBox.Show(ex.Message);
+            }
+            finally
+            {
+                Conexao.Close();
+            }
+        }
+
+        private void label4_Click(object sender, EventArgs e)
+        {
+
+        }
+
+        private void button2_Click(object sender, EventArgs e)
+        {
+            try
+            {
+                Conexao = new MySqlConnection(data_source);
+
+                string q = " '%" + txt_Buscar.Text + "%' ";
+
+                string sql = "SELECT * FROM contato WHERE nome LIKE " + q + "OR email LIKE" + q; 
+
+                MySqlCommand comando = new MySqlCommand(sql, Conexao);
+
+                Conexao.Open();
+                comando.ExecuteReader();
+
+                MySqlDataReader reader = comando.ExecuteReader();
+
+                lst_contato.Items.Clear();
+
+                while(reader.Read())
+                {
+                    string[] row =
+                    {
+                    reader.GetString(0),
+                    reader.GetString(1),
+                    reader.GetString(2),
+                    reader.GetString(3),
+                };
+
+                    var linhaListView = new ListViewItem(row);
+
+                    lst_contato.Items.Add(linhaListView);
+                };
+
+            }
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
             }
